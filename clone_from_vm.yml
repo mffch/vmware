@@ -1,0 +1,51 @@
+---
+- name: Create a clone from a template
+  hosts: localhost
+  gather_facts: no
+
+#The variables below will prompt the user's crendentials
+  vars_prompt:
+    - name: "user"
+      prompt: "Enter username"
+      private: yes
+
+    - name: "password"
+      prompt: "Enter password"
+      private: yes
+
+    - name: "template"
+      prompt: "What vm I am going to clone? :"
+      private: no
+
+    - name: "clone_name"
+      prompt: "Enter the name of the cloned vm"
+      private: no
+
+    - name: "folder"
+      prompt: "Where I am going to store this vm?"
+      private: no
+
+
+#Hardcoded variables to use for the creation of the vm
+  vars:
+    hostname:
+    datacenter: ViaWest-Aloclek
+    cluster: Production
+
+
+
+
+  tasks:
+  - name: create a VM template
+    vmware_guest:
+      hostname: "{{hostname}}"
+      username: "{{user}}"
+      password: "{{password}}"
+      validate_certs: no
+      datacenter: "{{datacenter}}"
+      cluster: Production
+      folder: "{{folder}}"
+      name: "{{clone_name}}"
+      is_template: yes
+      template: "{{template}}"
+    register: deploy

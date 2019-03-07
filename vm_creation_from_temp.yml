@@ -1,0 +1,66 @@
+---
+- name: Create a new vm from template
+  hosts: localhost
+  gather_facts: no
+
+#The variables below will prompt the user's crendentials
+  vars_prompt:
+    - name: "user"
+      prompt: "Enter your username:"
+      private: yes
+
+    - name: "password"
+      prompt: "Enter your password:"
+      private: yes
+
+    - name: "namea"
+      prompt: "Please enter the name of the new vm:"
+      private: no
+
+    - name: "template"
+      prompt: "Which template I am going to use"
+      private: no
+
+    - name: "ip"
+      prompt: "Enter IP"
+      private: no
+
+#Hardcoded variables to use for the creation of the vm
+  vars:
+    hostname: 10.11.20.180 #Webclient IP
+    datacenter: ViaWest-Aloclek #VMware datacenter name
+    folder: /HX-UCS-TEST-VMS
+    netmask: 255.255.255.0
+    gateway: 10.11.20.1
+
+
+#Creation of new vm using a template
+  tasks:
+  - name: Create vm from template
+    vmware_guest:
+      hostname: "{{hostname}}"
+      username: "{{user}}"
+      password: "{{password}}"
+      validate_certs: False
+      name: "{{namea}}"
+      template: "{{template}}"
+      datacenter: "{{datacenter}}"
+      folder: "{{folder}}"
+      state: poweredon
+      validate_certs: False
+      networks:
+      - name: mgmt
+        ip: "{{ip}}"
+        netmask: "{{netmask}}"
+        gateway: "{{gateway}}"
+        start_connected: True
+      customization:
+        dns_servers:
+        - 10.11.20.116
+        - 10.11.20.117
+        domain_name:
+        - via.act-on.net 
+        - dc.act-on.net
+        - act-on.net
+      wait_for_ip_address: no
+    delegate_to: localhost
